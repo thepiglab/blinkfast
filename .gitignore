@@ -1,0 +1,7 @@
+/target/
+/local/
+/models/
+/data/
+*.npy
+*.parquet
+__pycache__/

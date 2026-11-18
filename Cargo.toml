@@ -1,0 +1,50 @@
+[package]
+name = "blinkfast"
+version = "0.1.0"
+edition = "2021"
+description = "Fast CPU runner for Model2Vec static embedding models (minishlab Blink), bit-compatible with model2vec"
+license = "MIT"
+publish = false
+
+[lib]
+name = "blinkfast"
+path = "src/lib.rs"
+
+[[bin]]
+name = "blinkfast"
+path = "src/main.rs"
+
+[dependencies]
+aho-corasick = "1"
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+half = "2"
+hashbrown = "0.15"
+foldhash = "0.1"
+memmap2 = "0.9"
+rayon = "1"
+safetensors = "0.6"
+serde_json = "1"
+unicode-normalization = "0.1"
+unicode_categories = "0.1"
+arrow = { version = "55", default-features = false }
+parquet = { version = "55", default-features = false, features = ["arrow", "zstd"] }
+# generic tokenizer path for pipelines the WordPiece fast path does not cover (e.g. Gemma BPE in EG2 distils)
+tokenizers = { version = "0.23", default-features = false, features = ["onig"], optional = true }
+# comparison arm only (bench --engine model2vec-rs); not used by blinkfast's own path
+model2vec-rs = { version = "0.4.0", default-features = false, features = ["onig", "local-only"], optional = true }
+
+[dev-dependencies]
+tokenizers = { version = "0.23", default-features = false, features = ["onig"] }
+
+[features]
+default = ["compare", "generic"]
+generic = ["dep:tokenizers"]
+compare = ["dep:model2vec-rs"]
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+debug = false
+panic = "abort"
